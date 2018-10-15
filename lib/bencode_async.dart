@@ -6,7 +6,7 @@ import 'dart:async';
 class BencodeAsync {
   static BdecoderAsync _decoder = new BdecoderAsync();
 
-  static Future<Object> decode(EasyParser parser) {
+  static Future<Object> decode(TinyParser parser) {
     return _decoder.decode(parser);
   }
 }
@@ -14,13 +14,13 @@ class BencodeAsync {
 class BdecoderAsync {
   HetiBencodeParseError tmpError = new HetiBencodeParseError.empty();
   static String DIGIT_AS_STRING = "0123456789";
-  static List<int> DIGIT = convert.UTF8.encode(DIGIT_AS_STRING);
+  static List<int> DIGIT = convert.utf8.encode(DIGIT_AS_STRING);
 
-  Future<Object> decode(EasyParser parser) {
+  Future<Object> decode(TinyParser parser) {
     return decodeBenObject(parser);
   }
 
-  Future<Object> decodeBenObject(EasyParser parser) async {
+  Future<Object> decodeBenObject(TinyParser parser) async {
     List<int> v = await parser.peekBytes(1);
     if (0x69 == v[0]) {
       // i
@@ -39,14 +39,14 @@ class BdecoderAsync {
     throw tmpError.update("benobject");
   }
 
-  Future<Map> decodeDiction(EasyParser parser) async {
+  Future<Map> decodeDiction(TinyParser parser) async {
     await parser.nextString("d");
     Map ret = await decodeDictionElements(parser);
     await parser.nextString("e");
     return ret;
   }
 
-  Future<Map> decodeDictionElements(EasyParser parser) async {
+  Future<Map> decodeDictionElements(TinyParser parser) async {
     Map ret = new Map();
     while (true) {
       String key = await decodeString(parser);
@@ -59,14 +59,14 @@ class BdecoderAsync {
     }
   }
 
-  Future<List<Object>> decodeList(EasyParser parser) async {
+  Future<List<Object>> decodeList(TinyParser parser) async {
     await parser.nextString("l");
     List<Object> ret = await decodeListElement(parser);
     await parser.nextString("e");
     return ret;
   }
 
-  Future<List<Object>> decodeListElement(EasyParser parser) async {
+  Future<List<Object>> decodeListElement(TinyParser parser) async {
     List<Object> ret = new List();
     while (true) {
       Object v1 = await decodeBenObject(parser);
@@ -81,7 +81,7 @@ class BdecoderAsync {
     }
   }
 
-  Future<int> decodeNumber(EasyParser parser) async {
+  Future<int> decodeNumber(TinyParser parser) async {
     await parser.nextString("i");
     //List<int> numList = await parser.nextBytePatternByUnmatch(new EasyParserIncludeMatcher(DIGIT));
     List<int> numList = await parser.matchBytesFromBytes(DIGIT);
@@ -90,12 +90,12 @@ class BdecoderAsync {
     return num;
   }
 
-  Future<String> decodeString(EasyParser parser) async {
+  Future<String> decodeString(TinyParser parser) async {
     List<int> v = await decodeBytes(parser);
-    return convert.UTF8.decode(v, allowMalformed: true);
+    return convert.utf8.decode(v, allowMalformed: true);
   }
 
-  Future<List<int>> decodeBytes(EasyParser parser) async {
+  Future<List<int>> decodeBytes(TinyParser parser) async {
     //List<int> lengthList = await parser.nextBytePatternByUnmatch(new EasyParserIncludeMatcher(DIGIT));
     List<int> lengthList = await parser.matchBytesFromBytes(DIGIT);
     if (lengthList.length == 0) {
