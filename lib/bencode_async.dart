@@ -1,6 +1,6 @@
 import 'dart:typed_data' as data;
 import 'dart:convert' as convert;
-import 'package:tiny_parser/parser.dart';
+import 'package:tiny_parser/parser.dart' show ParserByteBuffer, TinyParser;
 import 'dart:async';
 
 class BencodeAsync {
